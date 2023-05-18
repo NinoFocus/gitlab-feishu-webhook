@@ -11,16 +11,20 @@ import (
 	"text/template"
 )
 
-func HandlePushEvent(pushEvent gitlab.PushEventPayload) {
+type MyPushEventPayload gitlab.PushEventPayload
+
+func HandlePushEvent(payload gitlab.PushEventPayload) {
+	p := MyPushEventPayload(payload)
+
 	bot := lark.NewNotificationBot(os.Getenv("FEISHU_BOT_WEBHOOK_URL"))
 	bot.GetTenantAccessTokenInternal(true)
 
 	b := lark.NewCardBuilder()
 
 	card := b.Card(
-		b.Markdown(renderBody(pushEvent)),
-		b.Note().AddText(b.Text(renderFooter(pushEvent)).LarkMd()),
-	).Blue().Title(renderTitle(pushEvent))
+		b.Markdown(p.renderBody()),
+		b.Note().AddText(b.Text(p.renderFooter()).LarkMd()),
+	).Blue().Title(p.renderTitle())
 
 	msg := lark.NewMsgBuffer(lark.MsgInteractive)
 
@@ -32,9 +36,9 @@ func HandlePushEvent(pushEvent gitlab.PushEventPayload) {
 	log.Println("Send message to feishu success")
 }
 
-func renderTitle(pushEvent gitlab.PushEventPayload) string {
-	userName := pushEvent.UserName
-	totalCommitCount := pushEvent.TotalCommitsCount
+func (payload *MyPushEventPayload) renderTitle() string {
+	userName := payload.UserName
+	totalCommitCount := payload.TotalCommitsCount
 
 	if totalCommitCount > 1 {
 		return fmt.Sprintf("%s push %d commits", userName, totalCommitCount)
@@ -42,14 +46,15 @@ func renderTitle(pushEvent gitlab.PushEventPayload) string {
 	return fmt.Sprintf("%s push a commit", userName)
 }
 
-func renderBody(pushEvent gitlab.PushEventPayload) string {
+func (payload *MyPushEventPayload) renderBody() string {
 	t := template.Must(template.New("pushEvent").Funcs(template.FuncMap{
 		"shortId": utils.GetShortCommitId,
 	}).Parse(`
 {{range .Commits}}
 {{$shortId := shortId .ID}}
-*commit [{{$shortId}}]({{.URL}})*
+***commit [{{$shortId}}]({{.URL}})***
 Author: {{.Author.Name}} ({{.Author.Email}})
+Date: {{.Timestamp}}
 
 {{.Message}}
 
@@ -57,15 +62,15 @@ Author: {{.Author.Name}} ({{.Author.Email}})
 `))
 	var buf strings.Builder
 
-	if err := t.Execute(&buf, pushEvent); err != nil {
+	if err := t.Execute(&buf, payload); err != nil {
 		return ""
 	}
 
 	return buf.String()
 }
 
-func renderFooter(pushEvent gitlab.PushEventPayload) string {
-	branch := utils.GetBranchNameFromRef(pushEvent.Ref)
+func (payload *MyPushEventPayload) renderFooter() string {
+	branch := utils.GetBranchNameFromRef(payload.Ref)
 
-	return fmt.Sprintf("%s > %s", pushEvent.Repository.Name, branch)
+	return fmt.Sprintf("%s > %s", payload.Repository.Name, branch)
 }
