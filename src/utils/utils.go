@@ -1,12 +1,18 @@
 package utils
 
 import (
+	"os"
 	"strings"
 )
 
-func EscapeForLarkMd(source string) string {
-	target := strings.Replace(source, "\n", "\\n", -1)
-	target = strings.Replace(target, "\r", "\\r", -1)
-	target = strings.Replace(target, "\t", "\\t", -1)
-	return target
+func GetFeiShuBotWebhookURLFromEnv() string {
+	return os.Getenv("FEISHU_BOT_WEBHOOK_URL")
+}
+
+func GetBranchNameFromRef(ref string) string {
+	return strings.Replace(ref, "refs/heads/", "", 1)
+}
+
+func GetShortCommitId(commitId string) string {
+	return commitId[0:7]
 }
