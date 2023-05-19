@@ -1,51 +1,59 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/ninofocus/gitlab-feishu-webhook/src/handler"
 	"github.com/ninofocus/gitlab-feishu-webhook/src/utils"
 	"gopkg.in/go-playground/webhooks.v5/gitlab"
 	"log"
-	"net/http"
 )
 
 func main() {
+	godotenv.Load()
 	checkEnv()
 
-	hook, _ := gitlab.New()
+	server := gin.Default()
 
-	http.HandleFunc("/gitlab/webhook", func(w http.ResponseWriter, r *http.Request) {
-		event := r.Header.Get("X-Gitlab-Event")
-		if len(event) == 0 {
-			log.Println("Empty X-Gitlab-Event")
-			return
-		}
+	server.GET("/ping", handlePing)
+	server.POST("/gitlab/webhook", handleGitlabWebhook)
 
-		gitLabEvent := gitlab.Event(event)
-		log.Printf("Received: [%s]", gitLabEvent)
-
-		payload, err := hook.Parse(r, gitlab.PushEvents, gitlab.MergeRequestEvents)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		switch payload.(type) {
-		case gitlab.PushEventPayload:
-			go handler.HandlePushEvent(payload.(gitlab.PushEventPayload))
-		case gitlab.MergeRequestEventPayload:
-			go handler.HandleMergeRequestEvent(payload.(gitlab.MergeRequestEventPayload))
-		}
-	})
-	log.Fatal(http.ListenAndServe(":8083", nil))
+	server.Run(":8083")
 }
 
 func checkEnv() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 	webhookUrl := utils.GetFeiShuBotWebhookURLFromEnv()
 	if len(webhookUrl) == 0 {
 		log.Fatal("FEISHU_BOT_WEBHOOK_URL not found in env")
+	}
+}
+
+func handlePing(ctx *gin.Context) {
+	ctx.JSON(200, gin.H{
+		"message": "pong",
+	})
+}
+
+func handleGitlabWebhook(ctx *gin.Context) {
+	r := ctx.Request
+
+	event := r.Header.Get("X-Gitlab-Event")
+	if len(event) == 0 {
+		log.Println("Empty X-Gitlab-Event")
+		return
+	}
+
+	hook, _ := gitlab.New()
+
+	payload, err := hook.Parse(r, gitlab.PushEvents, gitlab.MergeRequestEvents)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	switch payload.(type) {
+	case gitlab.PushEventPayload:
+		go handler.HandlePushEvent(payload.(gitlab.PushEventPayload))
+	case gitlab.MergeRequestEventPayload:
+		go handler.HandleMergeRequestEvent(payload.(gitlab.MergeRequestEventPayload))
 	}
 }
