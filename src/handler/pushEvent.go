@@ -3,8 +3,8 @@ package handler
 import (
 	"fmt"
 	"github.com/go-lark/lark"
+	"github.com/go-playground/webhooks/v6/gitlab"
 	"github.com/ninofocus/gitlab-feishu-webhook/src/utils"
-	"gopkg.in/go-playground/webhooks.v5/gitlab"
 	"log"
 	"os"
 	"strings"

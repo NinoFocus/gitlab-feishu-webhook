@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/webhooks/v6/gitlab"
 	"github.com/joho/godotenv"
 	"github.com/ninofocus/gitlab-feishu-webhook/src/handler"
 	"github.com/ninofocus/gitlab-feishu-webhook/src/utils"
-	"gopkg.in/go-playground/webhooks.v5/gitlab"
 	"log"
 )
 
@@ -36,6 +36,9 @@ func handlePing(ctx *gin.Context) {
 
 func handleGitlabWebhook(ctx *gin.Context) {
 	r := ctx.Request
+
+	//body, _ := ioutil.ReadAll(r.Body)
+	//fmt.Println(string(body))
 
 	event := r.Header.Get("X-Gitlab-Event")
 	if len(event) == 0 {

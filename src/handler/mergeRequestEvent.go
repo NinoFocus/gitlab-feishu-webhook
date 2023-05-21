@@ -3,7 +3,7 @@ package handler
 import (
 	"fmt"
 	"github.com/go-lark/lark"
-	"gopkg.in/go-playground/webhooks.v5/gitlab"
+	"github.com/go-playground/webhooks/v6/gitlab"
 	"log"
 	"os"
 	"strings"
@@ -43,23 +43,26 @@ func (payload *MyMergeRequestEventPayload) renderTitle() string {
 }
 
 func (payload *MyMergeRequestEventPayload) renderBody() string {
-	t := template.Must(template.New("pushEvent").Parse(`
-**{{.Title}}**
-{{if ne (len .Description) 0}}
+	t := template.Must(template.New("mergeRequestEvent").Parse(`
+**{{.ObjectAttributes.Title}}**
+{{if ne (len .ObjectAttributes.Description) 0}}
 
-{{.Description}}
+{{.ObjectAttributes.Description}}
 {{end}}
 
-Source Branch: {{.SourceBranch}}
-Target Branch: {{.TargetBranch}}
+Source Branch: {{.ObjectAttributes.SourceBranch}}
+Target Branch: {{.ObjectAttributes.TargetBranch}}
 
-Merge Status: {{.MergeStatus}}
+Merge Status: {{.ObjectAttributes.MergeStatus}}
 
-Assignee: {{.Assignee.Name}}
+{{if len .Assignees}}
+Assignee: {{range .Assignees}}{{.Name }} {{end}}
+{{end}}
 `))
 	var buf strings.Builder
 
-	if err := t.Execute(&buf, payload.ObjectAttributes); err != nil {
+	if err := t.Execute(&buf, payload); err != nil {
+		log.Println(err)
 		return ""
 	}
 
