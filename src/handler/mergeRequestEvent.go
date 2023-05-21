@@ -27,7 +27,7 @@ func HandleMergeRequestEvent(payload gitlab.MergeRequestEventPayload) {
 
 	switch p.ObjectAttributes.Action {
 	case "merge":
-		card.Blue()
+		card.Green()
 	case "close":
 		card.Red()
 	default:
