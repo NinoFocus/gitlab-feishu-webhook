@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  gitlab-feishu-webhook:
+    build:
+      context: .
+    image: gitlab-feishu-webhook
+    container_name: gitlab-feishu-webhook
+    restart: always
+    environment:
+      - GIN_MODE=release
+      - FEISHU_BOT_WEBHOOK_URL=https://open.feishu.cn/open-apis/bot/v2/hook/f0e42391-2388-41de-8c0e-af14726205fb
+    ports:
+      - "8083:8083"
