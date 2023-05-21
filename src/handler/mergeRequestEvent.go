@@ -23,7 +23,16 @@ func HandleMergeRequestEvent(payload gitlab.MergeRequestEventPayload) {
 	card := b.Card(
 		b.Markdown(p.renderBody()),
 		b.Note().AddText(b.Text(p.renderFooter()).LarkMd()),
-	).Blue().Title(p.renderTitle()).Link(b.URL().Href(p.ObjectAttributes.URL))
+	).Title(p.renderTitle()).Link(b.URL().Href(p.ObjectAttributes.URL))
+
+	switch p.ObjectAttributes.Action {
+	case "merge":
+		card.Blue()
+	case "close":
+		card.Red()
+	default:
+		card.Blue()
+	}
 
 	msg := lark.NewMsgBuffer(lark.MsgInteractive)
 
@@ -53,7 +62,7 @@ func (payload *MyMergeRequestEventPayload) renderBody() string {
 Source Branch: {{.ObjectAttributes.SourceBranch}}
 Target Branch: {{.ObjectAttributes.TargetBranch}}
 
-Merge Status: {{.ObjectAttributes.MergeStatus}}
+State: {{.ObjectAttributes.State}}
 
 {{if len .Assignees}}
 Assignee: {{range .Assignees}}{{.Name }} {{end}}

@@ -35,20 +35,9 @@ func handlePing(ctx *gin.Context) {
 }
 
 func handleGitlabWebhook(ctx *gin.Context) {
-	r := ctx.Request
-
-	//body, _ := ioutil.ReadAll(r.Body)
-	//fmt.Println(string(body))
-
-	event := r.Header.Get("X-Gitlab-Event")
-	if len(event) == 0 {
-		log.Println("Empty X-Gitlab-Event")
-		return
-	}
-
 	hook, _ := gitlab.New()
 
-	payload, err := hook.Parse(r, gitlab.PushEvents, gitlab.MergeRequestEvents)
+	payload, err := hook.Parse(ctx.Request, gitlab.PushEvents, gitlab.MergeRequestEvents)
 	if err != nil {
 		log.Println(err)
 		return
