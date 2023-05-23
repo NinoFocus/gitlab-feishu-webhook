@@ -10,18 +10,18 @@ import (
 )
 
 func main() {
-	godotenv.Load()
-	checkEnv()
+	loadAndCheckEnv()
 
 	server := gin.Default()
 
 	server.GET("/ping", handlePing)
 	server.POST("/gitlab/webhook", handleGitlabWebhook)
 
-	server.Run(":8083")
+	log.Fatal(server.Run(":8083"))
 }
 
-func checkEnv() {
+func loadAndCheckEnv() {
+	_ = godotenv.Load()
 	webhookUrl := utils.GetFeiShuBotWebhookURLFromEnv()
 	if len(webhookUrl) == 0 {
 		log.Fatal("FEISHU_BOT_WEBHOOK_URL not found in env")
