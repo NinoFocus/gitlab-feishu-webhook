@@ -6,12 +6,11 @@ This project allows you to set up a webhook in GitLab that will send notificatio
 
 1. Clone this repository in your local machine.
 2. Create a new Feishu bot and copy the webhook url.
-3. Set the environment variable FEISHU_BOT_ACCESS_TOKEN to the webhook url you copied.
-4. Copy `.env-example` to `.env`
-5. Open `.env` file and add your configurations.
-6. Run `docker-compose up -d --build` to build the container and start the service
-7. In your GitLab project, go to Settings > Integrations and enter the URL of your server followed by the endpoint https://YOUR_DOMAIN/gitlab/webhook (e.g. https://example.com/gitlab/webhook)
-8. Select the events you want to trigger the webhook (e.g. Push events) and save the changes.
+3. Copy `.env-example` to `.env`.
+4. Open `.env` file and modify the `FEISHU_BOT_WEBHOOK_URL` value. 
+5. Run `docker-compose up -d --build` to build the container and start the service.
+6. In your GitLab project, go to Settings > Integrations and enter the URL of your server followed by the endpoint https://YOUR_DOMAIN/gitlab/webhook (e.g. https://example.com/gitlab/webhook)
+7. Select the events you want to trigger the webhook (e.g. Push events) and save the changes.
 
 
 ## Usage
