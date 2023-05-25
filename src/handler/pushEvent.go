@@ -17,7 +17,6 @@ func HandlePushEvent(payload gitlab.PushEventPayload) {
 	p := MyPushEventPayload(payload)
 
 	bot := lark.NewNotificationBot(os.Getenv("FEISHU_BOT_WEBHOOK_URL"))
-	bot.GetTenantAccessTokenInternal(true)
 
 	b := lark.NewCardBuilder()
 
