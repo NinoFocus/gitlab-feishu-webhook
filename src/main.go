@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/webhooks/v6/gitlab"
 	"github.com/joho/godotenv"
@@ -10,7 +11,10 @@ import (
 )
 
 func main() {
-	loadAndCheckEnv()
+	env := flag.String("env", ".env", "Path to env file")
+	flag.Parse()
+
+	loadAndCheckEnv(env)
 
 	server := gin.Default()
 
@@ -20,13 +24,16 @@ func main() {
 	log.Fatal(server.Run(":8083"))
 }
 
-func loadAndCheckEnv() {
-	_ = godotenv.Load()
+func loadAndCheckEnv(env *string) {
+	_ = godotenv.Load(*env)
 	webhookUrl := utils.GetFeiShuBotWebhookURLFromEnv()
 	if len(webhookUrl) == 0 {
 		log.Fatal("FEISHU_BOT_WEBHOOK_URL not found in env")
 	} else {
-		log.Println("FEISHU_BOT_WEBHOOK_URL: " + webhookUrl)
+		log.Println("====== ENV BEGIN ======")
+		log.Println("FEISHU_BOT_WEBHOOK_URL=" + webhookUrl)
+		log.Println("====== ENV END   ======")
+		log.Println("")
 	}
 }
 
