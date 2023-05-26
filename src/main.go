@@ -29,11 +29,6 @@ func loadAndCheckEnv(env *string) {
 	webhookUrl := utils.GetFeiShuBotWebhookURLFromEnv()
 	if len(webhookUrl) == 0 {
 		log.Fatal("FEISHU_BOT_WEBHOOK_URL not found in env")
-	} else {
-		log.Println("====== ENV BEGIN ======")
-		log.Println("FEISHU_BOT_WEBHOOK_URL=" + webhookUrl)
-		log.Println("====== ENV END   ======")
-		log.Println("")
 	}
 }
 
